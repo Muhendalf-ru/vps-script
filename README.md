@@ -218,4 +218,4 @@ curl -fsSL https://raw.githubusercontent.com/Muhendalf-ru/vps-script/main/start.
 
 **Автор**: Pesherkino VPN  
 **Версия**: 1.0.0  
-**Последнее обновление**: $(date +%Y-%m-%d)
+**Последнее обновление**: 12.07.2025

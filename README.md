@@ -54,3 +54,28 @@
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Muhendalf-ru/vps-script/main/start.sh -o start.sh && chmod +x start.sh && sudo ./start.sh
+```
+
+##
+
+# Скрипт настройки времени и локали
+
+Этот скрипт позволяет быстро настроить часовой пояс и локаль на сервере Ubuntu.
+
+## Что делает скрипт
+
+- Показывает текущие настройки времени и локали.
+- Запрашивает у пользователя часовой пояс (например, `Europe/Moscow`).
+- Запрашивает локаль (например, `ru_RU.UTF-8`).
+- Применяет указанные настройки.
+- Выводит обновлённые значения для проверки.
+
+---
+
+## Быстрый запуск одной командой
+
+Выполните на сервере эту команду, чтобы скачать и сразу запустить скрипт:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Muhendalf-ru/vps-script/main/set_time_locale.sh -o set_time_locale.sh && chmod +x set_time_locale.sh && sudo ./set_time_locale.sh
+```

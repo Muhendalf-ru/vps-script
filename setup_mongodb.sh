@@ -228,13 +228,28 @@ add_mongodb_repo() {
     rm -f /usr/share/keyrings/mongodb-server-*.gpg 2>/dev/null || true
     
     # Добавление GPG ключа
+    log_info "Загрузка GPG ключа для MongoDB $version..."
     wget -qO - https://www.mongodb.org/static/pgp/server-$version.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-server-$version.gpg
     
     # Добавление репозитория
-    echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-$version.gpg ] https://repo.mongodb.org/apt/ubuntu $(lsb_release -cs)/mongodb-org/$version multiverse" | tee /etc/apt/sources.list.d/mongodb-org-$version.list
+    local ubuntu_codename=$(lsb_release -cs)
+    log_info "Добавление репозитория для Ubuntu $ubuntu_codename..."
+    
+    # Для Ubuntu 24.04 (noble) используем репозиторий jammy, если noble недоступен
+    if [[ "$ubuntu_codename" == "noble" ]] && [[ "$version" == "7.0" ]]; then
+        log_info "Ubuntu 24.04 обнаружена, используем репозиторий jammy для MongoDB 7.0"
+        ubuntu_codename="jammy"
+    fi
+    
+    echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-$version.gpg ] https://repo.mongodb.org/apt/ubuntu $ubuntu_codename/mongodb-org/$version multiverse" | tee /etc/apt/sources.list.d/mongodb-org-$version.list
     
     # Обновление пакетов
-    apt update
+    log_info "Обновление списков пакетов..."
+    if ! apt update; then
+        log_error "Ошибка обновления списков пакетов"
+        log_info "Проверьте подключение к интернету и доступность репозиториев"
+        exit 1
+    fi
     
     log_success "MongoDB репозиторий добавлен"
 }
@@ -246,7 +261,11 @@ install_mongodb() {
     log_info "Установка MongoDB $version..."
     
     # Установка MongoDB
-    apt install -y mongodb-org
+    if ! apt install -y mongodb-org; then
+        log_error "Ошибка установки MongoDB $version"
+        log_info "Проверьте доступность пакетов в репозитории"
+        exit 1
+    fi
     
     # Предотвращение автоматического обновления
     echo "mongodb-org hold" | dpkg --set-selections
@@ -704,6 +723,7 @@ main() {
         # Автоматическое переключение на рекомендуемую версию
         VERSION=$(get_recommended_mongodb_version)
         log_info "Автоматически переключились на MongoDB $VERSION для совместимости"
+        log_info "Продолжаем установку с версией: $VERSION"
     elif [[ $compatibility_result -ne 0 ]]; then
         log_error "Несовместимая версия MongoDB $VERSION для данной версии Ubuntu"
         log_info "Рекомендуемая версия: $(get_recommended_mongodb_version)"
@@ -723,6 +743,9 @@ main() {
     echo "Установка и настройка MongoDB $VERSION"
     echo "Автоматическое определение совместимой версии для Ubuntu $(lsb_release -rs)"
     echo "============================================================================="
+    
+    log_info "Начинаем установку MongoDB $VERSION..."
+    log_info "Параметры: Порт=$PORT, Аутентификация=$AUTH, Пользователь=$USER"
     
     # Установка
     install_dependencies

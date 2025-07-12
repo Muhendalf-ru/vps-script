@@ -77,6 +77,9 @@ curl -fsSL https://raw.githubusercontent.com/Muhendalf-ru/vps-script/main/setup_
 
 # MongoDB 7.0 на нестандартном порту
 curl -fsSL https://raw.githubusercontent.com/Muhendalf-ru/vps-script/main/setup_mongodb.sh -o setup_mongodb.sh && chmod +x setup_mongodb.sh && sudo ./setup_mongodb.sh -v 7.0 -p 27018
+
+# Исправление проблем с MongoDB репозиториями
+curl -fsSL https://raw.githubusercontent.com/Muhendalf-ru/vps-script/main/fix_mongodb_repo.sh -o fix_mongodb_repo.sh && chmod +x fix_mongodb_repo.sh && sudo ./fix_mongodb_repo.sh -a
 ```
 
 ---
@@ -100,9 +103,10 @@ curl -fsSL https://raw.githubusercontent.com/Muhendalf-ru/vps-script/main/setup_
 
 ### 🗄️ Базы данных
 
-| Скрипт             | Описание                                   | Документация                                   |
-| ------------------ | ------------------------------------------ | ---------------------------------------------- |
-| `setup_mongodb.sh` | Установка MongoDB (автоопределение версии) | [📖 README_mongodb.md](docs/README_mongodb.md) |
+| Скрипт                | Описание                                    | Документация                                           |
+| --------------------- | ------------------------------------------- | ------------------------------------------------------ |
+| `setup_mongodb.sh`    | Установка MongoDB (автоопределение версии)  | [📖 README_mongodb.md](docs/README_mongodb.md)         |
+| `fix_mongodb_repo.sh` | Исправление проблем с MongoDB репозиториями | [📖 README_mongodb_fix.md](docs/README_mongodb_fix.md) |
 
 ---
 
@@ -186,6 +190,60 @@ sha256sum -c checksums.txt
 
 # Проверка подписи GPG (если доступны)
 gpg --verify script.sh.asc script.sh
+```
+
+---
+
+## 🚨 Решение проблем
+
+### Проблемы с MongoDB репозиториями
+
+Если вы видите ошибки типа:
+
+```
+Err: https://repo.mongodb.org/apt/ubuntu noble/mongodb-org/6.0 Release
+  404 Not Found
+```
+
+**Решение:**
+
+```bash
+# Исправление проблем с MongoDB репозиториями
+curl -fsSL https://raw.githubusercontent.com/Muhendalf-ru/vps-script/main/fix_mongodb_repo.sh -o fix_mongodb_repo.sh && chmod +x fix_mongodb_repo.sh && sudo ./fix_mongodb_repo.sh -a
+```
+
+### Проблемы с apt update
+
+Если `apt update` выдает ошибки:
+
+```bash
+# Исправление проблем с apt
+sudo ./fix_mongodb_repo.sh -f
+```
+
+### Проблемы с зависимостями
+
+Если скрипты не могут установить зависимости:
+
+```bash
+# Обновление системы
+sudo apt update && sudo apt upgrade -y
+
+# Исправление сломанных зависимостей
+sudo apt --fix-broken install -y
+```
+
+### Проблемы с SSH сервисом
+
+Если вы видите ошибку "Unit sshd.service not found":
+
+```bash
+# В Ubuntu сервис называется 'ssh', а не 'sshd'
+sudo systemctl status ssh
+
+# Установка SSH сервера, если не установлен
+sudo apt install openssh-server
+sudo systemctl enable --now ssh
 ```
 
 ---

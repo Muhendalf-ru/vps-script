@@ -176,6 +176,13 @@ main() {
     # =============================================================================
     log_info "=== Настройка SSH ==="
     
+    # Установка SSH сервера, если не установлен
+    if ! systemctl is-active --quiet ssh; then
+        log_info "Установка SSH сервера..."
+        install_package "openssh-server"
+        systemctl enable --now ssh
+    fi
+    
     # Создание резервной копии
     backup_config "/etc/ssh/sshd_config"
     
@@ -196,7 +203,7 @@ main() {
     echo "ClientAliveCountMax 2" >> /etc/ssh/sshd_config
     
     # Перезапуск SSH
-    systemctl restart sshd
+    systemctl restart ssh
     check_exit_code "SSH настроен и перезапущен" "Ошибка настройки SSH"
     
     # =============================================================================

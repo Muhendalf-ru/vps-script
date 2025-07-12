@@ -191,6 +191,21 @@ sudo netstat -tlnp | grep :2222
 
 # Проверьте файрвол
 sudo ufw status
+
+# Если SSH не установлен
+sudo apt install openssh-server
+sudo systemctl enable --now ssh
+```
+
+### Проблема: "Unit sshd.service not found"
+
+```bash
+# В Ubuntu сервис называется 'ssh', а не 'sshd'
+sudo systemctl status ssh
+
+# Если сервис не найден, установите SSH сервер
+sudo apt install openssh-server
+sudo systemctl enable --now ssh
 ```
 
 ### Проблема: Docker не работает

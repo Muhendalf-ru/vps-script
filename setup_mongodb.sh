@@ -251,11 +251,7 @@ add_mongodb_repo() {
     
     # Обновление пакетов
     log_info "Обновление списков пакетов..."
-    if ! apt update; then
-        log_error "Ошибка обновления списков пакетов"
-        log_info "Проверьте подключение к интернету и доступность репозиториев"
-        exit 1
-    fi
+    apt update
     
     log_success "MongoDB репозиторий добавлен"
 }
@@ -267,11 +263,7 @@ install_mongodb() {
     log_info "Установка MongoDB $version..."
     
     # Установка MongoDB
-    if ! apt install -y mongodb-org; then
-        log_error "Ошибка установки MongoDB $version"
-        log_info "Проверьте доступность пакетов в репозитории"
-        exit 1
-    fi
+    apt install -y mongodb-org
     
     # Предотвращение автоматического обновления
     echo "mongodb-org hold" | dpkg --set-selections

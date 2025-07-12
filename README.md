@@ -103,10 +103,13 @@ curl -fsSL https://raw.githubusercontent.com/Muhendalf-ru/vps-script/main/fix_mo
 
 ### 🗄️ Базы данных
 
-| Скрипт                | Описание                                    | Документация                                           |
-| --------------------- | ------------------------------------------- | ------------------------------------------------------ |
-| `setup_mongodb.sh`    | Установка MongoDB (автоопределение версии)  | [📖 README_mongodb.md](docs/README_mongodb.md)         |
-| `fix_mongodb_repo.sh` | Исправление проблем с MongoDB репозиториями | [📖 README_mongodb_fix.md](docs/README_mongodb_fix.md) |
+| Скрипт                         | Описание                                    | Документация                                                           |
+| ------------------------------ | ------------------------------------------- | ---------------------------------------------------------------------- |
+| `setup_mongodb.sh`             | Установка MongoDB (автоопределение версии)  | [📖 README_mongodb.md](docs/README_mongodb.md)                         |
+| `setup_mongodb_alternative.sh` | Альтернативные методы установки MongoDB     | [📖 README_mongodb_alternative.md](docs/README_mongodb_alternative.md) |
+| `test_mongodb_7.sh`            | Тестирование MongoDB репозиториев           | [📖 README_mongodb_test.md](docs/README_mongodb_test.md)               |
+| `debug_mongodb_repo.sh`        | Детальная диагностика MongoDB               | [📖 README_mongodb_debug.md](docs/README_mongodb_debug.md)             |
+| `fix_mongodb_repo.sh`          | Исправление проблем с MongoDB репозиториями | [📖 README_mongodb_fix.md](docs/README_mongodb_fix.md)                 |
 
 ---
 
@@ -208,6 +211,15 @@ Err: https://repo.mongodb.org/apt/ubuntu noble/mongodb-org/6.0 Release
 **Решение:**
 
 ```bash
+# Быстрая диагностика проблемы
+curl -fsSL https://raw.githubusercontent.com/Muhendalf-ru/vps-script/main/test_mongodb_7.sh -o test_mongodb_7.sh && chmod +x test_mongodb_7.sh && sudo ./test_mongodb_7.sh
+
+# Детальная диагностика
+curl -fsSL https://raw.githubusercontent.com/Muhendalf-ru/vps-script/main/debug_mongodb_repo.sh -o debug_mongodb_repo.sh && chmod +x debug_mongodb_repo.sh && sudo ./debug_mongodb_repo.sh
+
+# Альтернативная установка через Snap (рекомендуется для Ubuntu 24.04+)
+curl -fsSL https://raw.githubusercontent.com/Muhendalf-ru/vps-script/main/setup_mongodb_alternative.sh -o setup_mongodb_alternative.sh && chmod +x setup_mongodb_alternative.sh && sudo ./setup_mongodb_alternative.sh -v 7.0 -m snap
+
 # Исправление проблем с MongoDB репозиториями
 curl -fsSL https://raw.githubusercontent.com/Muhendalf-ru/vps-script/main/fix_mongodb_repo.sh -o fix_mongodb_repo.sh && chmod +x fix_mongodb_repo.sh && sudo ./fix_mongodb_repo.sh -a
 ```

@@ -38,7 +38,7 @@ show_help() {
 Использование: $0 [ОПЦИИ]
 
 Опции:
-    -v, --version VERSION    Версия MongoDB (6.0, 5.0, 4.4) [по умолчанию: 6.0]
+    -v, --version VERSION    Версия MongoDB (7.0, 6.0, 5.0, 4.4) [по умолчанию: 6.0]
     -p, --port PORT          Порт MongoDB [по умолчанию: 27017]
     -d, --data-dir DIR       Директория для данных [по умолчанию: /var/lib/mongodb]
     -l, --log-dir DIR        Директория для логов [по умолчанию: /var/log/mongodb]
@@ -54,7 +54,8 @@ show_help() {
     -h, --help               Показать эту справку
 
 Примеры:
-    $0                                    # Базовая установка MongoDB 6.0
+    $0                                    # Базовая установка MongoDB (автоопределение версии)
+    $0 -v 7.0 -p 27018                    # MongoDB 7.0 на порту 27018
     $0 -v 5.0 -p 27018                    # MongoDB 5.0 на порту 27018
     $0 -a -u myuser -m 2048               # С аутентификацией и лимитом памяти
     $0 -r -c                              # Config server для replica set
@@ -84,13 +85,74 @@ check_root() {
     fi
 }
 
-# Функция для проверки версии Ubuntu
+# Функция для проверки версии Ubuntu и определения совместимой версии MongoDB
 check_ubuntu_version() {
-    local version=$(lsb_release -rs)
-    if [[ "$version" < "18.04" ]]; then
-        log_warning "Ubuntu $version может иметь проблемы совместимости с MongoDB 6.0"
-        log_warning "Рекомендуется Ubuntu 20.04+"
-    fi
+    local ubuntu_version=$(lsb_release -rs)
+    local codename=$(lsb_release -cs)
+    
+    log_info "Обнаружена Ubuntu $ubuntu_version ($codename)"
+    
+    # Определение совместимой версии MongoDB
+    case $codename in
+        "jammy"|"kinetic"|"lunar"|"mantic")
+            # Ubuntu 22.04+ поддерживает MongoDB 6.0+
+            if [[ "$1" == "6.0" ]] || [[ "$1" == "7.0" ]]; then
+                return 0
+            fi
+            ;;
+        "focal"|"groovy"|"hirsute"|"impish")
+            # Ubuntu 20.04+ поддерживает MongoDB 5.0+
+            if [[ "$1" == "5.0" ]] || [[ "$1" == "6.0" ]] || [[ "$1" == "7.0" ]]; then
+                return 0
+            fi
+            ;;
+        "bionic"|"cosmic"|"disco"|"eoan")
+            # Ubuntu 18.04+ поддерживает MongoDB 4.4+
+            if [[ "$1" == "4.4" ]] || [[ "$1" == "5.0" ]] || [[ "$1" == "6.0" ]] || [[ "$1" == "7.0" ]]; then
+                return 0
+            fi
+            ;;
+        "noble"|"oracular")
+            # Ubuntu 24.04+ поддерживает MongoDB 7.0+
+            if [[ "$1" == "7.0" ]]; then
+                return 0
+            else
+                log_warning "Ubuntu $ubuntu_version ($codename) поддерживает только MongoDB 7.0+"
+                log_warning "Автоматически переключаемся на MongoDB 7.0"
+                return 2  # Специальный код для автоматического переключения
+            fi
+            ;;
+        *)
+            log_warning "Неизвестная версия Ubuntu: $codename"
+            log_warning "Рекомендуется Ubuntu 18.04+"
+            return 1
+            ;;
+    esac
+    
+    return 0
+}
+
+# Функция для получения рекомендуемой версии MongoDB для текущей Ubuntu
+get_recommended_mongodb_version() {
+    local codename=$(lsb_release -cs)
+    
+    case $codename in
+        "noble"|"oracular")
+            echo "7.0"
+            ;;
+        "jammy"|"kinetic"|"lunar"|"mantic")
+            echo "6.0"
+            ;;
+        "focal"|"groovy"|"hirsute"|"impish")
+            echo "5.0"
+            ;;
+        "bionic"|"cosmic"|"disco"|"eoan")
+            echo "4.4"
+            ;;
+        *)
+            echo "6.0"  # По умолчанию
+            ;;
+    esac
 }
 
 # Функция для получения доступной памяти
@@ -633,7 +695,20 @@ main() {
     # Проверки
     check_root
     check_dependencies
-    check_ubuntu_version
+    
+    # Проверка совместимости версии MongoDB с Ubuntu
+    check_ubuntu_version "$VERSION"
+    local compatibility_result=$?
+    
+    if [[ $compatibility_result -eq 2 ]]; then
+        # Автоматическое переключение на рекомендуемую версию
+        VERSION=$(get_recommended_mongodb_version)
+        log_info "Автоматически переключились на MongoDB $VERSION для совместимости"
+    elif [[ $compatibility_result -ne 0 ]]; then
+        log_error "Несовместимая версия MongoDB $VERSION для данной версии Ubuntu"
+        log_info "Рекомендуемая версия: $(get_recommended_mongodb_version)"
+        exit 1
+    fi
     
     if ! validate_version "$VERSION"; then
         exit 1
@@ -646,6 +721,7 @@ main() {
     echo "============================================================================="
     echo "🐘 MongoDB Setup Script"
     echo "Установка и настройка MongoDB $VERSION"
+    echo "Автоматическое определение совместимой версии для Ubuntu $(lsb_release -rs)"
     echo "============================================================================="
     
     # Установка

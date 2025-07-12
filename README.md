@@ -69,11 +69,14 @@ curl -fsSL https://raw.githubusercontent.com/Muhendalf-ru/vps-script/main/optimi
 #### 🗄️ Базы данных
 
 ```bash
+# MongoDB с автоматическим определением версии
+curl -fsSL https://raw.githubusercontent.com/Muhendalf-ru/vps-script/main/setup_mongodb.sh -o setup_mongodb.sh && chmod +x setup_mongodb.sh && sudo ./setup_mongodb.sh
+
 # MongoDB с аутентификацией
 curl -fsSL https://raw.githubusercontent.com/Muhendalf-ru/vps-script/main/setup_mongodb.sh -o setup_mongodb.sh && chmod +x setup_mongodb.sh && sudo ./setup_mongodb.sh -a
 
-# MongoDB 6.0 на нестандартном порту
-curl -fsSL https://raw.githubusercontent.com/Muhendalf-ru/vps-script/main/setup_mongodb.sh -o setup_mongodb.sh && chmod +x setup_mongodb.sh && sudo ./setup_mongodb.sh -v 6.0 -p 27018
+# MongoDB 7.0 на нестандартном порту
+curl -fsSL https://raw.githubusercontent.com/Muhendalf-ru/vps-script/main/setup_mongodb.sh -o setup_mongodb.sh && chmod +x setup_mongodb.sh && sudo ./setup_mongodb.sh -v 7.0 -p 27018
 ```
 
 ---
@@ -97,9 +100,9 @@ curl -fsSL https://raw.githubusercontent.com/Muhendalf-ru/vps-script/main/setup_
 
 ### 🗄️ Базы данных
 
-| Скрипт             | Описание          | Документация                                   |
-| ------------------ | ----------------- | ---------------------------------------------- |
-| `setup_mongodb.sh` | Установка MongoDB | [📖 README_mongodb.md](docs/README_mongodb.md) |
+| Скрипт             | Описание                                   | Документация                                   |
+| ------------------ | ------------------------------------------ | ---------------------------------------------- |
+| `setup_mongodb.sh` | Установка MongoDB (автоопределение версии) | [📖 README_mongodb.md](docs/README_mongodb.md) |
 
 ---
 

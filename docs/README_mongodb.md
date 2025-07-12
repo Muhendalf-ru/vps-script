@@ -217,7 +217,7 @@ curl -fsSL https://raw.githubusercontent.com/Muhendalf-ru/vps-script/main/setup_
 
 ```bash
 [INFO] Обнаружена Ubuntu 24.04 (noble)
-[WARNING] Ubuntu 24.04 (noble) поддерживает только MongoDB 7.0+
+[WARNING] Ubuntu 24.04 (noble) поддерживает MongoDB 7.0+
 [WARNING] Автоматически переключаемся на MongoDB 7.0
 [INFO] Автоматически переключились на MongoDB 7.0 для совместимости
 ```

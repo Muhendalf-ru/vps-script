@@ -117,7 +117,7 @@ check_ubuntu_version() {
             if [[ "$1" == "7.0" ]]; then
                 return 0
             else
-                log_warning "Ubuntu $ubuntu_version ($codename) поддерживает только MongoDB 7.0+"
+                log_warning "Ubuntu $ubuntu_version ($codename) поддерживает MongoDB 7.0+"
                 log_warning "Автоматически переключаемся на MongoDB 7.0"
                 return 2  # Специальный код для автоматического переключения
             fi
@@ -138,19 +138,19 @@ get_recommended_mongodb_version() {
     
     case $codename in
         "noble"|"oracular")
-            echo "7.0"
+            echo "7.0"  # MongoDB 7.0 теперь доступен
             ;;
         "jammy"|"kinetic"|"lunar"|"mantic")
-            echo "6.0"
+            echo "7.0"
             ;;
         "focal"|"groovy"|"hirsute"|"impish")
-            echo "5.0"
+            echo "6.0"
             ;;
         "bionic"|"cosmic"|"disco"|"eoan")
-            echo "4.4"
+            echo "5.0"
             ;;
         *)
-            echo "6.0"  # По умолчанию
+            echo "7.0"  # По умолчанию
             ;;
     esac
 }
@@ -229,13 +229,19 @@ add_mongodb_repo() {
     
     # Добавление GPG ключа
     log_info "Загрузка GPG ключа для MongoDB $version..."
-    wget -qO - https://www.mongodb.org/static/pgp/server-$version.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-server-$version.gpg
+    if [[ "$version" == "7.0" ]]; then
+        # Для MongoDB 7.0 используем новый URL
+        curl -fsSL https://pgp.mongodb.com/server-7.0.asc | gpg -o /usr/share/keyrings/mongodb-server-$version.gpg --dearmor
+    else
+        # Для других версий используем старый URL
+        wget -qO - https://www.mongodb.org/static/pgp/server-$version.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-server-$version.gpg
+    fi
     
     # Добавление репозитория
     local ubuntu_codename=$(lsb_release -cs)
     log_info "Добавление репозитория для Ubuntu $ubuntu_codename..."
     
-    # Для Ubuntu 24.04 (noble) используем репозиторий jammy, если noble недоступен
+    # Для Ubuntu 24.04 (noble) используем репозиторий jammy для MongoDB 7.0
     if [[ "$ubuntu_codename" == "noble" ]] && [[ "$version" == "7.0" ]]; then
         log_info "Ubuntu 24.04 обнаружена, используем репозиторий jammy для MongoDB 7.0"
         ubuntu_codename="jammy"

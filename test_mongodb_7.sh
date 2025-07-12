@@ -28,7 +28,7 @@ log_warning() {
 }
 
 echo "============================================================================="
-echo "🧪 Тест MongoDB 7.0 репозитория"
+echo "🧪 Тест MongoDB репозитория для Ubuntu 24.04"
 echo "============================================================================="
 
 # Проверка версии Ubuntu
@@ -45,19 +45,48 @@ else
     exit 1
 fi
 
-# Проверка доступности MongoDB GPG ключа
-log_info "Проверка доступности MongoDB 7.0 GPG ключа..."
-if curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc >/dev/null 2>&1; then
-    log_success "GPG ключ MongoDB 7.0 доступен"
+# Проверка доступности MongoDB 6.0 GPG ключа
+log_info "Проверка доступности MongoDB 6.0 GPG ключа..."
+if curl -fsSL https://www.mongodb.org/static/pgp/server-6.0.asc >/dev/null 2>&1; then
+    log_success "GPG ключ MongoDB 6.0 доступен"
 else
-    log_error "GPG ключ MongoDB 7.0 недоступен"
+    log_error "GPG ключ MongoDB 6.0 недоступен"
     exit 1
 fi
 
-# Проверка доступности репозитория
+# Проверка доступности MongoDB 7.0 GPG ключа
+log_info "Проверка доступности MongoDB 7.0 GPG ключа..."
+if curl -fsSL https://pgp.mongodb.com/server-7.0.asc >/dev/null 2>&1; then
+    log_success "GPG ключ MongoDB 7.0 доступен"
+else
+    log_warning "GPG ключ MongoDB 7.0 недоступен"
+fi
+
+# Проверка доступности репозитория MongoDB 6.0
+log_info "Проверка доступности MongoDB 6.0 репозитория..."
+REPO_URL_6="https://repo.mongodb.org/apt/ubuntu $(lsb_release -cs)/mongodb-org/6.0"
+if curl -fsSL "$REPO_URL_6" >/dev/null 2>&1; then
+    log_success "Репозиторий MongoDB 6.0 доступен"
+else
+    log_warning "Репозиторий MongoDB 6.0 недоступен для $(lsb_release -cs)"
+    log_info "Попробуем альтернативный URL..."
+    
+    # Попробуем альтернативный URL для Ubuntu 24.04
+    if [[ "$(lsb_release -cs)" == "noble" ]]; then
+        ALT_REPO_URL="https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0"
+        if curl -fsSL "$ALT_REPO_URL" >/dev/null 2>&1; then
+            log_success "Альтернативный репозиторий MongoDB 6.0 доступен (jammy)"
+            echo "Рекомендуется использовать Ubuntu jammy (22.04) репозиторий для noble (24.04)"
+        else
+            log_error "Альтернативный репозиторий MongoDB 6.0 также недоступен"
+        fi
+    fi
+fi
+
+# Проверка доступности репозитория MongoDB 7.0
 log_info "Проверка доступности MongoDB 7.0 репозитория..."
-REPO_URL="https://repo.mongodb.org/apt/ubuntu $(lsb_release -cs)/mongodb-org/7.0"
-if curl -fsSL "$REPO_URL" >/dev/null 2>&1; then
+REPO_URL_7="https://repo.mongodb.org/apt/ubuntu $(lsb_release -cs)/mongodb-org/7.0"
+if curl -fsSL "$REPO_URL_7" >/dev/null 2>&1; then
     log_success "Репозиторий MongoDB 7.0 доступен"
 else
     log_warning "Репозиторий MongoDB 7.0 недоступен для $(lsb_release -cs)"
@@ -67,10 +96,10 @@ else
     if [[ "$(lsb_release -cs)" == "noble" ]]; then
         ALT_REPO_URL="https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0"
         if curl -fsSL "$ALT_REPO_URL" >/dev/null 2>&1; then
-            log_success "Альтернативный репозиторий доступен (jammy)"
+            log_success "Альтернативный репозиторий MongoDB 7.0 доступен (jammy)"
             echo "Рекомендуется использовать Ubuntu jammy (22.04) репозиторий для noble (24.04)"
         else
-            log_error "Альтернативный репозиторий также недоступен"
+            log_error "Альтернативный репозиторий MongoDB 7.0 также недоступен"
         fi
     fi
 fi
